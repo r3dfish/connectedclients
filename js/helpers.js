@@ -75,39 +75,90 @@ function get_blacklist_macs(){
 
 function remove_blacklisted_mac(mac_to_remove){
   document.getElementById('mac_address').value=mac_to_remove;
+  document.getElementById('remove_blacklist_csrf_token').value=$('meta[name=_csrfToken]').attr('content');
   document.getElementById("remove_blacklist_mac_button").click();
 }
 
 function add_blacklisted_mac(mac_to_add){
   document.getElementById('mac_address').value=mac_to_add;
+  document.getElementById('add_blacklist_csrf_token').value=$('meta[name=_csrfToken]').attr('content');
   document.getElementById("add_blacklist_mac_button").click();
 }
 
+function deauthenticate_wlan0_mac(mac_to_deauth){
+  document.getElementById('deauth_wlan0_mac_address').value=mac_to_deauth;
+  document.getElementById('deauth_wlan0_mac_csrf_token').value=$('meta[name=_csrfToken]').attr('content');
+  document.getElementById("deauthenticate_wlan0_mac_button").click();
+}
+
+function deauthenticate_wlan0_1_mac(mac_to_deauth){
+  document.getElementById('deauth_wlan0_1_mac_address').value=mac_to_deauth;
+  document.getElementById('deauth_wlan0_1_mac_csrf_token').value=$('meta[name=_csrfToken]').attr('content');
+  document.getElementById("deauthenticate_wlan0_1_mac_button").click();
+}
+
+function disassociate_wlan0_mac(mac_to_disassociate){
+  document.getElementById('disassociate_wlan0_mac_address').value=mac_to_disassociate;
+  document.getElementById('disassociate_wlan0_mac_csrf_token').value=$('meta[name=_csrfToken]').attr('content');
+  document.getElementById("disassociate_wlan0_mac_button").click();
+}
+
+function disassociate_wlan0_1_mac(mac_to_disassociate){
+  document.getElementById('disassociate_wlan0_1_mac_address').value=mac_to_disassociate;
+  document.getElementById('disassociate_wlan0_1_mac_csrf_token').value=$('meta[name=_csrfToken]').attr('content');
+  document.getElementById("disassociate_wlan0_1_mac_button").click();
+}
+
 function refresh_blacklist_tab() {
-  get_tab("/components/infusions/connectedclients/tabs/blacklist.php");
+  refresh_current_tab();
+  //get_tab("/components/infusions/connectedclients/tabs/blacklist.php");
   setTimeout(function(){},500);
 }
 
 function refresh_dhcp_tab() {
-  get_tab("/components/infusions/connectedclients/tabs/dhcp_leases.php");
+  refresh_current_tab();
+  //get_tab("/components/infusions/connectedclients/tabs/dhcp_leases.php");
   setTimeout(function(){},500);
 }
 
 function get_iw_connected_clients(){
-  $.get('/components/infusions/connectedclients/functions.php?action=get_iw_clients', function(data){
+  $.get('/components/infusions/connectedclients/functions.php?action=get_iw_wlan0_clients', function(data){
 
     var clients = JSON.parse(data);
-    $('#clients_count').html(clients.length);
-    var html_to_print = "<table style='border-spacing: 25px 2px'><tr><td>Mac Address</td><td>Add to Blacklist</td></tr>";
-    for (var x = 0; x < clients.length; x++){
-        html_to_print += "<tr><td>" + clients[x] + "</td><td><a href=\"#\" onclick=\"add_blacklisted_mac('" + clients[x] + "')\">blacklist</a></td></tr>";
+    $('#wlan_0_clients_count').html(clients.length);
+    if (clients.length > 0){
+      var html_to_print = "<table style='border-spacing: 25px 2px'><tr><td>Mac Address</td><td>Add to Blacklist</td><td>Deauthenticate</td><td>Disassociate</td></tr>";
+      for (var x = 0; x < clients.length; x++){
+        html_to_print += "<tr><td>" + clients[x] + "</td><td><a href=\"#\" onclick=\"add_blacklisted_mac('" + clients[x] + "')\">blacklist</a></td><td><a href=\"#\" onclick=\"deauthenticate_wlan0_mac('" + clients[x] + "')\">deauthenticate</a></td><td><a href=\"#\" onclick=\"disassociate_wlan0_mac('" + clients[x] + "')\">disassociate</a></td></tr>";
+      }
+      html_to_print += "</table>";
+    } else {
+      var html_to_print = "";
     }
-    html_to_print += "</table>";
-    $('#client_macs').html(html_to_print);
+    $('#wlan0_client_macs').html(html_to_print);
   });
+
+  $.get('/components/infusions/connectedclients/functions.php?action=get_iw_wlan0_1_clients', function(data){
+
+    var clients = JSON.parse(data);
+    $('#wlan0_1_clients_count').html(clients.length);
+    if (clients.length > 0){
+      var html_to_print = "<table style='border-spacing: 25px 2px'><tr><td>Mac Address</td><td>Add to Blacklist</td><td>Deauthenticate</td><td>Disassociate</td></tr>";
+      for (var x = 0; x < clients.length; x++){
+        html_to_print += "<tr><td>" + clients[x] + "</td><td><a href=\"#\" onclick=\"add_blacklisted_mac('" + clients[x] + "')\">blacklist</a></td><td><a href=\"#\" onclick=\"deauthenticate_wlan0_1_mac('" + clients[x] + "')\">deauthenticate</a></td><td><a href=\"#\" onclick=\"disassociate_wlan0_1_mac('" + clients[x] + "')\">disassociate</a></td></tr>";
+      }
+      html_to_print += "</table>";
+    } else {
+      var html_to_print = "";
+    }
+    $('#wlan0_1_client_macs').html(html_to_print);
+  });
+  
 }
 
+
 function refresh_clients_tab() {
-  get_tab("/components/infusions/connectedclients/tabs/connected_clients.php");
+  refresh_current_tab();
+  //get_tab("/components/infusions/connectedclients/tabs/connected_clients.php");
   setTimeout(function(){},500);
 }   
