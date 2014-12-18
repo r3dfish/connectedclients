@@ -14,8 +14,23 @@ if (isset($_GET['action'])) {
         case 'add_blacklisted_mac':
             echo add_mac_to_blacklist($_POST['mac_address']);
             break;
-        case 'get_iw_clients':
-            echo get_iw_connected_clients();
+        case 'get_iw_wlan0_clients':
+            echo get_iw_wlan0_connected_clients();
+            break;
+        case 'get_iw_wlan0_1_clients':
+            echo get_iw_wlan0_1_connected_clients();
+            break;
+        case 'deauthenticate_mac_wlan0':
+            echo deauth_wlan0_connected_mac($_POST['deauth_wlan0_mac_address']);
+            break;
+        case 'deauthenticate_mac_wlan0_1':
+            echo deauth_wlan0_1_connected_mac($_POST['deauth_wlan0_1_mac_address']);
+            break;
+        case 'disassociate_mac_wlan0':
+            echo disassociate_wlan0_connected_mac($_POST['disassociate_wlan0_mac_address']);
+            break;
+        case 'disassociate_mac_wlan0_1':
+            echo disassociate_wlan0_1_connected_mac($_POST['disassociate_wlan0_1_mac_address']);
             break;
     }
 }
@@ -48,11 +63,42 @@ function add_mac_to_blacklist($mac){
     return "";
 }
 
-// This function gets the list of connected clients from iw
-function get_iw_connected_clients(){
+// This function gets the list of clients connected to wlan0 from iw
+function get_iw_wlan0_connected_clients(){
     exec("iw dev wlan0 station dump | grep Station | awk '{print $2}'", $iw_connected_clients);
     $html = json_encode($iw_connected_clients);
     return $html;
+}
+
+// This function gets the list of clients connected to wlan0-1 from iw
+function get_iw_wlan0_1_connected_clients(){
+    exec("iw dev wlan0-1 station dump | grep Station | awk '{print $2}'", $iw_connected_clients);
+    $html = json_encode($iw_connected_clients);
+    return $html;
+}
+
+// This function deauthenticates a mac address connected to wlan0 using hostapd_cli
+function deauth_wlan0_connected_mac($mac){
+   exec('hostapd_cli -p /var/run/hostapd-phy0 -i wlan0 deauthenticate "'.$mac.'"');
+   return "";
+}
+
+// This function deauthenticates a mac address connected to wlan0-1 using hostapd_cli
+function deauth_wlan0_1_connected_mac($mac){
+   exec('hostapd_cli -p /var/run/hostapd-phy0 -i wlan0-1 deauthenticate "'.$mac.'"');
+   return "";
+}
+
+// This function disassociates a mac address connected to wlan0 using hostapd_cli
+function disassociate_wlan0_connected_mac($mac){
+   exec('hostapd_cli -p /var/run/hostapd-phy0 -i wlan0 disassociate "'.$mac.'"');
+   return "";
+}
+
+// This function disassociates a mac address connected to wlan0-1 using hostapd_cli
+function disassociate_wlan0_1_connected_mac($mac){
+   exec('hostapd_cli -p /var/run/hostapd-phy0 -i wlan0-1 disassociate "'.$mac.'"');
+   return "";
 }
 
 ?>
